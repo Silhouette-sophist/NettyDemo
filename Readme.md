@@ -1,6 +1,9 @@
 # Maven工程结构
+
 ## pom.xml文件分析
+
 pom.xml文件包含了工程的各种信息， 通过分析可以知道Maven项目的关键概念：
+
 - 父工程信息：SpringBoot之所以无需配置即可启动，实际上是在父工程中有相应默认配置。工程的解析和启动都依赖于父工程。
 - 当前工程gav信息：当前工程特征信息。
 - 通用属性设置：jdk版本属性等
@@ -39,7 +42,7 @@ pom.xml文件包含了工程的各种信息， 通过分析可以知道Maven项�
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        
+
         <!--springboot-test starter, 测试方法可在正常SpringBoot启动环境下执行case-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -70,6 +73,7 @@ pom.xml文件包含了工程的各种信息， 通过分析可以知道Maven项�
 ```
 
 ### 默认配置问题
+
 直接父工程：spring-boot-starter-parent
 maven仓库查看依赖信息：https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent/2.7.4
 **注意**：实际上就是一个pom文件
@@ -84,59 +88,40 @@ https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependen
 
 **注意**：SpringBoot一个具体版本实际上就是一系列配置和依赖（包括各个依赖的默认版本信息！）的组合，用户使用即指定父项目即会融合pom文件，然后得到最终的pom文件。
 
->> 父项目解决了第一个问题：为何SpringBoot无需配置即可使用？因为会融合父项目的pom文件，完成编译插件和依赖配置等内容的默认行为。
 
-```text
-maven带来了项目继承的管理
- Maven Project可以理解为父工程。
-Maven Module可以理解为子工程。
-创建Maven Module工程必须有存在的父工程，maven就是通过父子工程进行工程管理的。
-我们以项目为例子。onlinestore是一个主项目，onlinestore-core、onlinestore-interf、 onlinestore-chinaweb、onlinestore-americaweb是onlinestore的4个子项目（其中前两个是java 项目，后边两个是web项目）。
-父项目和子项目在MyEclipse里边是平级的关系，在磁盘的目录结构中，子项目在父项目所在的文件夹中。
 
-在pom.xml文件中，我们打开父项目的pom.xml文件，里边可以找到：
-    <modules>
-    <module>onlinestore-core</module>
-    <module>onlinestore-interf</module>
-    <module>onlinestore-chinaweb</module>
-    <module>onlinestore-americaweb</module>
-    </modules>
+> > 父项目解决了第一个问题：为何SpringBoot无需配置即可使用？因为会融合父项目的pom文件，完成编译插件和依赖配置等内容的默认行为。
 
-另外，在4个子项目的pom.xml的文件中，也能找到类似的：
-    <parent>
-    <artifactId>parent</artifactId>
-    <groupId>com.uuwit.onlinestore</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-    </parent>
 
-也就是说，在父项目和子项目中，都有说明他们之间的关系。
-通常一个大的项目会将项目分成多个模块，比如上边咱们举的例 子，core是项目的一些核心类或者组件，interf放接口类，其余两个分别是两个相对独立的web模块。正常情况下，两个web模块比如会依赖 core和interf这两个项目。而两个web项目之间通常并不会有依赖关系，但是他们之间却有很多共性的东西，比如说很多类似的配置、很多类似的 jar包等等，这时候父项目和子项目的优势就能体现出来了。我们知道maven父项目和子项目的pom.xml是有继承关系的，也就是说各个模块相同的部 分，我们可以配置到父项目的pom.xml文件中，这样子项目中的pom.xml只放自己个性的东西就可以了，这大大减少了工作量。另外，在编译和打包等 其他阶段，都可以统一在父项目中来进行，maven会自动操作其中的子项目，提高了效率。
-【注意：】事实上，所有的maven项目都会继承一个超级pom，这个pom就是%M2_HOME%\lib\maven-2.2.1-uber.jar中的org\apache\maven\project\pom-4.0.0.xml。
-所以 如果我们要建立 父子关系 
-只要在 主项目的pom.xml中添加相应的 modules 说明 
-以及在子项目中添加 parent说明即可。
-```
+
+
 
 ### 代码执行流程
 
-- 启动入口
-```java
-@SpringBootApplication
-public class NettyDemoApplication {
+SpringBoot应用启动会创建IOC容器，容器中已经创建好各种组件对象，并且各种配置也是以组件的形式存在于IOC容器中，SpringBoot web应用即运行在IOC容器环境上，可直接使用各种组件对象。
 
+- 启动入口
+  
+  ```java
+  @SpringBootApplication
+  public class NettyDemoApplication {
+  
     public static void main(String[] args) {
         SpringApplication.run(NettyDemoApplication.class, args);
     }
-}
-```
+  }
+  ```
 
 跟进spring-boot:2.7.4包中的SpringApplication.java
+
+- ApplicationContext构建
+
 ```java
 public class SpringApplication {
     public SpringApplication(Class<?>... primarySources) {
         this((ResourceLoader)null, primarySources);
     }
-    
+
     public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
         return run(new Class[]{primarySource}, args);
     }
@@ -144,7 +129,7 @@ public class SpringApplication {
     public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
         return (new SpringApplication(primarySources)).run(args);
     }
-    
+
     public ConfigurableApplicationContext run(String... args) {
         long startTime = System.nanoTime();
         DefaultBootstrapContext bootstrapContext = this.createBootstrapContext();
@@ -157,13 +142,16 @@ public class SpringApplication {
             ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
             ConfigurableEnvironment environment = this.prepareEnvironment(listeners, bootstrapContext, applicationArguments);
             this.configureIgnoreBeanInfo(environment);
-            
+
             Banner printedBanner = this.printBanner(environment);
-            // 创建的ApplicationContext，即IOC容器？
+            // 创建的ApplicationContext，即IOC容器？但未被初始化，没有完成配置和组件存入容器操作
             context = this.createApplicationContext();
             context.setApplicationStartup(this.applicationStartup);
+            // 完成IOC容器构建
             this.prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
+            // 刷新IOC容器？
             this.refreshContext(context);
+            // 刷新IOC容器完成？
             this.afterRefresh(context, applicationArguments);
             Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
             if (this.logStartupInfo) {
@@ -195,6 +183,7 @@ public class SpringApplication {
 ```
 
 ApplicationContextFactory中
+
 ```java
 @FunctionalInterface
 public interface ApplicationContextFactory {
@@ -234,6 +223,155 @@ public interface ApplicationContextFactory {
 }
 ```
 
+两个实现类：AnnotationConfigReactiveWebServerApplicationContext和AnnotationConfigServletWebServerApplicationContext，分别对于Servlet和Reactive类型的Web应用。这边只看Servlet的。
 
+```java
+public class AnnotationConfigServletWebServerApplicationContext extends ServletWebServerApplicationContext implements AnnotationConfigRegistry {
+    private final AnnotatedBeanDefinitionReader reader;
+    private final ClassPathBeanDefinitionScanner scanner;
+    private final Set<Class<?>> annotatedClasses;
+    private String[] basePackages;
 
+    public AnnotationConfigServletWebServerApplicationContext() {
+        this.annotatedClasses = new LinkedHashSet();
+        this.reader = new AnnotatedBeanDefinitionReader(this);
+        this.scanner = new ClassPathBeanDefinitionScanner(this);
+    }
 
+    public AnnotationConfigServletWebServerApplicationContext(DefaultListableBeanFactory beanFactory) {
+        super(beanFactory);
+        this.annotatedClasses = new LinkedHashSet();
+        this.reader = new AnnotatedBeanDefinitionReader(this);
+        this.scanner = new ClassPathBeanDefinitionScanner(this);
+    }
+
+    public AnnotationConfigServletWebServerApplicationContext(Class<?>... annotatedClasses) {
+        this();
+        this.register(annotatedClasses);
+        this.refresh();
+    }
+
+    public AnnotationConfigServletWebServerApplicationContext(String... basePackages) {
+        this();
+        this.scan(basePackages);
+        this.refresh();
+    }
+
+    public void setEnvironment(ConfigurableEnvironment environment) {
+        super.setEnvironment(environment);
+        this.reader.setEnvironment(environment);
+        this.scanner.setEnvironment(environment);
+    }
+
+    public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+        this.reader.setBeanNameGenerator(beanNameGenerator);
+        this.scanner.setBeanNameGenerator(beanNameGenerator);
+        this.getBeanFactory().registerSingleton("org.springframework.context.annotation.internalConfigurationBeanNameGenerator", beanNameGenerator);
+    }
+
+    public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
+        this.reader.setScopeMetadataResolver(scopeMetadataResolver);
+        this.scanner.setScopeMetadataResolver(scopeMetadataResolver);
+    }
+
+    public final void register(Class<?>... annotatedClasses) {
+        Assert.notEmpty(annotatedClasses, "At least one annotated class must be specified");
+        this.annotatedClasses.addAll(Arrays.asList(annotatedClasses));
+    }
+
+    public final void scan(String... basePackages) {
+        Assert.notEmpty(basePackages, "At least one base package must be specified");
+        this.basePackages = basePackages;
+    }
+
+    protected void prepareRefresh() {
+        this.scanner.clearCache();
+        super.prepareRefresh();
+    }
+
+    protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+        super.postProcessBeanFactory(beanFactory);
+        if (this.basePackages != null && this.basePackages.length > 0) {
+            this.scanner.scan(this.basePackages);
+        }
+
+        if (!this.annotatedClasses.isEmpty()) {
+            this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));
+        }
+
+    }
+
+    static class Factory implements ApplicationContextFactory {
+        Factory() {
+        }
+
+        public ConfigurableApplicationContext create(WebApplicationType webApplicationType) {
+            return webApplicationType != WebApplicationType.SERVLET ? null : new AnnotationConfigServletWebServerApplicationContext();
+        }
+    }
+}
+
+```
+
+注意：内部类调用外部构造函数，实现ApplicationContext的创建，内部持有了AnnotatedBeanDefinitionReader和ClassPathBeanDefinitionScanner对象，这俩对象在spring-context里面。
+
+- ApplicationContext对象初始化
+
+生成的ApplicationContext对象还未完成初始化，需要调用下面完成IOC容器初始化操作。
+
+```java
+    this.prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
+    this.refreshContext(context);
+    this.afterRefresh(context, applicationArguments);
+
+    // ApplicationContext对象构建后，进行初始化环境操作
+    private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context, ConfigurableEnvironment environment, SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments, Banner printedBanner) {
+        context.setEnvironment(environment);
+        this.postProcessApplicationContext(context);
+        this.applyInitializers(context);
+        listeners.contextPrepared(context);
+        bootstrapContext.close(context);
+        if (this.logStartupInfo) {
+            this.logStartupInfo(context.getParent() == null);
+            this.logStartupProfileInfo(context);
+        }
+
+        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+        beanFactory.registerSingleton("springApplicationArguments", applicationArguments);
+        if (printedBanner != null) {
+            beanFactory.registerSingleton("springBootBanner", printedBanner);
+        }
+
+        if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
+            ((AbstractAutowireCapableBeanFactory)beanFactory).setAllowCircularReferences(this.allowCircularReferences);
+            if (beanFactory instanceof DefaultListableBeanFactory) {
+                ((DefaultListableBeanFactory)beanFactory).setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
+            }
+        }
+
+        if (this.lazyInitialization) {
+            context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
+        }
+
+        context.addBeanFactoryPostProcessor(new PropertySourceOrderingBeanFactoryPostProcessor(context));
+        Set<Object> sources = this.getAllSources();
+        Assert.notEmpty(sources, "Sources must not be empty");
+        this.load(context, sources.toArray(new Object[0]));
+        listeners.contextLoaded(context);
+    }
+
+    // ApplicationContext对象初始化环境完成后？
+    private void refreshContext(ConfigurableApplicationContext context) {
+        if (this.registerShutdownHook) {
+            shutdownHook.registerApplicationContext(context);
+        }
+        this.refresh(context);
+    }
+    protected void refresh(ConfigurableApplicationContext applicationContext) {
+        applicationContext.refresh();
+    }
+    
+    // ApplicationContext对象初始化环境完成后？
+    protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) {
+    }
+```
