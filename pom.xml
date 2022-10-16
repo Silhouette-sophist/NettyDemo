@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!--父项目中配置了很多文件，所以SpringBoot无需配置多少东西就可以执行了-->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!--当前项目的gav信息-->
+    <groupId>com.example</groupId>
+    <artifactId>NettyDemo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>NettyDemo</name>
+    <description>NettyDemo</description>
+
+    <!--通用属性，java版本选择1.8-->
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <!--依赖信息-->
+    <dependencies>
+        <!--springboot-web starter-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--springboot-test starter, 测试方法可在正常SpringBoot启动环境下执行case-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--编译期会被执行的插件，比如Lombok会基于各种注解生成相应的java代码！-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
