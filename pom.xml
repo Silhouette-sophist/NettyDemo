@@ -30,6 +30,14 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!--neety学习源码-->
+<!--        <dependency>-->
+<!--            <groupId>io.netty</groupId>-->
+<!--            <artifactId>netty-all</artifactId>-->
+<!--            <version>4.1.82.Final</version>-->
+<!--        </dependency>-->
+
+
         <!--springboot-test starter, 测试方法可在正常SpringBoot启动环境下执行case-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
